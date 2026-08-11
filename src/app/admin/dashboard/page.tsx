@@ -127,6 +127,8 @@ export default function AdminDashboardPage() {
     items: [],
   });
 
+  const [isScanning, setIsScanning] = useState(false);
+
   const [summarySearch, setSummarySearch] = useState('');
   const [summaryFilterTab, setSummaryFilterTab] = useState<'all' | 'created' | 'already_existed'>('all');
 
@@ -1323,6 +1325,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleCleanDuplicates = async () => {
+    setIsScanning(true);
     setLoading(true);
     setMessage(null);
 
@@ -1341,6 +1344,7 @@ export default function AdminDashboardPage() {
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Error scanning duplicates' });
     } finally {
+      setIsScanning(false);
       setLoading(false);
     }
   };
@@ -1357,6 +1361,7 @@ export default function AdminDashboardPage() {
       return;
     }
 
+    setIsScanning(true);
     setLoading(true);
     setDupModal((prev) => ({ ...prev, isOpen: false }));
 
@@ -1378,6 +1383,7 @@ export default function AdminDashboardPage() {
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Error deleting duplicates' });
     } finally {
+      setIsScanning(false);
       setLoading(false);
     }
   };
@@ -3888,6 +3894,36 @@ export default function AdminDashboardPage() {
                   {loading ? 'Saving to Supabase...' : `Confirm & Import Selected (${cleanItemsToInsert.length + duplicateConflicts.filter((c) => c.selected).length})`}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POPUP MODAL 6.5: DEDUPLICATION SCANNING PROGRESS MODAL */}
+      {isScanning && (
+        <div className={`${styles.modalOverlay} ${styles.topModalOverlay}`}>
+          <div className={styles.modalContent} style={{ maxWidth: '450px', textAlign: 'center', padding: '2.5rem 2rem', background: '#070a11', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '12px', boxShadow: '0 0 50px rgba(59, 130, 246, 0.2)' }}>
+            <style>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+              .spinning-icon {
+                display: inline-block;
+                animation: spin 1.5s linear infinite;
+                font-size: 3rem;
+                margin-bottom: 1.25rem;
+              }
+            `}</style>
+            <div className="spinning-icon">🔍</div>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>
+              Database Audit in Progress
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+              Analyzing all **62,000+ video releases** in your Supabase database. Grouping matches and auditing external IDs, titles, and slugs...
+            </p>
+            <div style={{ fontSize: '0.8rem', color: '#60a5fa', fontWeight: 700, marginTop: '1.25rem', background: 'rgba(59, 130, 246, 0.1)', padding: '0.4rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.3)', display: 'inline-block' }}>
+              ⚡ Querying Supabase via Keyset batches...
             </div>
           </div>
         </div>
