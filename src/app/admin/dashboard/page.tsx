@@ -1361,10 +1361,8 @@ export default function AdminDashboardPage() {
     setDupModal((prev) => ({ ...prev, isOpen: false }));
 
     try {
-      const res = await fetch('/api/admin/videos', {
+      const res = await fetch('/api/admin/videos?clean_duplicates=true', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: dupModal.items.map((item) => item.id) }),
       });
 
       const data = await res.json();
@@ -1374,7 +1372,7 @@ export default function AdminDashboardPage() {
 
       setMessage({
         type: 'success',
-        text: `🎉 Successfully cleaned database! Deleted ${data.count.toLocaleString()} duplicate video records.`,
+        text: `🎉 Successfully cleaned database! Deleted ${data.deletedCount.toLocaleString()} duplicate video records.`,
       });
       loadVideos();
     } catch (err: any) {

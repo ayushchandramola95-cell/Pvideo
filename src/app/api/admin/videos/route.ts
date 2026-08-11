@@ -709,17 +709,20 @@ export async function DELETE(request: Request) {
       const seenTitles = new Map<string, string>(); // title -> original video id
       const seenSlugs = new Map<string, string>(); // slug -> original video id
       const duplicateIds: string[] = [];
+      const dupToOrigMap = new Map<string, string>(); // duplicate video id -> original video id
 
       for (const v of allVids) {
         const cleanTitle = (v.title || '').trim().toLowerCase();
         const cleanSlug = (v.slug || '').trim().toLowerCase();
         let isDuplicate = false;
+        let origId = '';
 
         // Rule 1: Duplicate by External ID
         if (v.external_id) {
           const extId = v.external_id.trim();
           if (seenExtIds.has(extId)) {
             isDuplicate = true;
+            origId = seenExtIds.get(extId)!;
           } else {
             seenExtIds.set(extId, v.id);
           }
@@ -729,6 +732,7 @@ export async function DELETE(request: Request) {
         if (!isDuplicate && cleanTitle) {
           if (seenTitles.has(cleanTitle)) {
             isDuplicate = true;
+            origId = seenTitles.get(cleanTitle)!;
           } else {
             seenTitles.set(cleanTitle, v.id);
           }
@@ -738,6 +742,7 @@ export async function DELETE(request: Request) {
         if (!isDuplicate && cleanSlug) {
           if (seenSlugs.has(cleanSlug)) {
             isDuplicate = true;
+            origId = seenSlugs.get(cleanSlug)!;
           } else {
             seenSlugs.set(cleanSlug, v.id);
 
@@ -746,13 +751,60 @@ export async function DELETE(request: Request) {
               const baseSlug = suffixMatch[1];
               if (seenSlugs.has(baseSlug)) {
                 isDuplicate = true;
+                origId = seenSlugs.get(baseSlug)!;
               }
             }
           }
         }
 
-        if (isDuplicate) {
+        if (isDuplicate && origId) {
           duplicateIds.push(v.id);
+          dupToOrigMap.set(v.id, origId);
+        }
+      }
+
+      // Re-link category, pornstar, and tag associations from duplicates to originals before purging
+      if (duplicateIds.length > 0) {
+        try {
+          const [{ data: catJuncs }, { data: psJuncs }, { data: tagJuncs }] = await Promise.all([
+            supabaseAdmin.from('video_categories').select('*').in('video_id', duplicateIds),
+            supabaseAdmin.from('video_pornstars').select('*').in('video_id', duplicateIds),
+            supabaseAdmin.from('video_tags').select('*').in('video_id', duplicateIds)
+          ]);
+
+          const categoriesToRelink: { video_id: string; category_id: string }[] = [];
+          const pornstarsToRelink: { video_id: string; pornstar_id: string }[] = [];
+          const tagsToRelink: { video_id: string; tag_id: string }[] = [];
+
+          if (catJuncs) {
+            for (const j of catJuncs) {
+              const origId = dupToOrigMap.get(j.video_id);
+              if (origId) categoriesToRelink.push({ video_id: origId, category_id: j.category_id });
+            }
+          }
+
+          if (psJuncs) {
+            for (const j of psJuncs) {
+              const origId = dupToOrigMap.get(j.video_id);
+              if (origId) pornstarsToRelink.push({ video_id: origId, pornstar_id: j.pornstar_id });
+            }
+          }
+
+          if (tagJuncs) {
+            for (const j of tagJuncs) {
+              const origId = dupToOrigMap.get(j.video_id);
+              if (origId) tagsToRelink.push({ video_id: origId, tag_id: j.tag_id });
+            }
+          }
+
+          // Bulk upsert new relationships mapping to original IDs
+          await Promise.all([
+            categoriesToRelink.length > 0 ? supabaseAdmin.from('video_categories').upsert(categoriesToRelink, { ignoreDuplicates: true }) : Promise.resolve(),
+            pornstarsToRelink.length > 0 ? supabaseAdmin.from('video_pornstars').upsert(pornstarsToRelink, { ignoreDuplicates: true }) : Promise.resolve(),
+            tagsToRelink.length > 0 ? supabaseAdmin.from('video_tags').upsert(tagsToRelink, { ignoreDuplicates: true }) : Promise.resolve()
+          ]);
+        } catch (e) {
+          console.warn('Junction re-linking failed:', e);
         }
       }
 
