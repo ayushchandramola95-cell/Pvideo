@@ -14,7 +14,8 @@ export default function Pagination({ currentPage, totalPages, baseUrl = '/' }: P
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   const createPageUrl = (page: number) => {
-    return `${baseUrl}?page=${page}`;
+    const connector = baseUrl.includes('?') ? '&' : '?';
+    return `${baseUrl}${connector}page=${page}`;
   };
 
   return (
