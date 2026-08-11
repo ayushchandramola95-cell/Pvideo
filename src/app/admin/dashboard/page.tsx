@@ -1312,6 +1312,33 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleCleanDuplicates = async () => {
+    if (!confirm('⚠️ You are about to scan all database records for duplicates and delete them. This process may take a few seconds.\n\nDo you want to proceed?')) {
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch('/api/admin/videos?clean_duplicates=true', { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Failed to clean duplicates');
+      }
+
+      setMessage({
+        type: 'success',
+        text: `🎉 Deduplication complete! Scanned ${data.scanned.toLocaleString()} videos, found and deleted ${data.deletedCount.toLocaleString()} duplicate records.`,
+      });
+      loadVideos();
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Error cleaning duplicates' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteVideo = async (id: string) => {
     if (!confirm('Are you sure you want to delete this video release?')) return;
     try {
@@ -2848,6 +2875,16 @@ export default function AdminDashboardPage() {
                           </button>
                         </>
                       )}
+
+                      <button
+                        type="button"
+                        onClick={handleCleanDuplicates}
+                        disabled={loading}
+                        className={styles.deleteBtn}
+                        style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.4)', padding: '0.45rem 1rem', fontSize: '0.82rem', fontWeight: 800, marginRight: '0.5rem' }}
+                      >
+                        🧹 Clean Duplicate Videos
+                      </button>
 
                       <button
                         type="button"

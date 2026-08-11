@@ -573,6 +573,112 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const purgeAll = searchParams.get('purge_all');
+    const cleanDuplicates = searchParams.get('clean_duplicates');
+
+    const supabaseAdmin = getAdminSupabase();
+
+    // 1. Clean duplicates across all videos (Supports 60k+ videos using keyset pagination)
+    if (cleanDuplicates === 'true') {
+      let allVids: { id: string; external_id: string | null; slug: string; title: string }[] = [];
+      let lastId = '';
+      let hasMore = true;
+      const batchSize = 10000;
+
+      while (hasMore) {
+        let query = supabaseAdmin
+          .from('videos')
+          .select('id, external_id, slug, title')
+          .order('id', { ascending: true })
+          .limit(batchSize);
+
+        if (lastId) {
+          query = query.gt('id', lastId);
+        }
+
+        const { data, error } = await query;
+        if (error || !data || data.length === 0) {
+          hasMore = false;
+          break;
+        }
+
+        allVids = allVids.concat(data);
+        lastId = data[data.length - 1].id;
+        if (data.length < batchSize) {
+          hasMore = false;
+        }
+      }
+
+      const totalScanned = allVids.length;
+      const seenExtIds = new Map<string, string>(); // external_id -> original video id
+      const seenTitles = new Map<string, string>(); // title -> original video id
+      const seenSlugs = new Map<string, string>(); // slug -> original video id
+      const duplicateIds: string[] = [];
+
+      for (const v of allVids) {
+        const cleanTitle = (v.title || '').trim().toLowerCase();
+        const cleanSlug = (v.slug || '').trim().toLowerCase();
+        let isDuplicate = false;
+
+        // Rule 1: Duplicate by External ID
+        if (v.external_id) {
+          const extId = v.external_id.trim();
+          if (seenExtIds.has(extId)) {
+            isDuplicate = true;
+          } else {
+            seenExtIds.set(extId, v.id);
+          }
+        }
+
+        // Rule 2: Duplicate by Title
+        if (!isDuplicate && cleanTitle) {
+          if (seenTitles.has(cleanTitle)) {
+            isDuplicate = true;
+          } else {
+            seenTitles.set(cleanTitle, v.id);
+          }
+        }
+
+        // Rule 3: Duplicate by Slug (or slug with suffix like -1, -2)
+        if (!isDuplicate && cleanSlug) {
+          if (seenSlugs.has(cleanSlug)) {
+            isDuplicate = true;
+          } else {
+            seenSlugs.set(cleanSlug, v.id);
+
+            const suffixMatch = cleanSlug.match(/^(.+)-(\d+)$/);
+            if (suffixMatch) {
+              const baseSlug = suffixMatch[1];
+              if (seenSlugs.has(baseSlug)) {
+                isDuplicate = true;
+              }
+            }
+          }
+        }
+
+        if (isDuplicate) {
+          duplicateIds.push(v.id);
+        }
+      }
+
+      // Batch delete the duplicates
+      let deletedCount = 0;
+      const deleteBatchSize = 100;
+      for (let i = 0; i < duplicateIds.length; i += deleteBatchSize) {
+        const batch = duplicateIds.slice(i, i + deleteBatchSize);
+        const { error } = await supabaseAdmin.from('videos').delete().in('id', batch);
+        if (!error) {
+          deletedCount += batch.length;
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        scanned: totalScanned,
+        duplicatesFound: duplicateIds.length,
+        deletedCount,
+        message: `Scanned ${totalScanned} videos, deleted ${deletedCount} duplicates.`,
+      });
+    }
 
     let bodyIds: string[] = [];
     try {
@@ -582,9 +688,7 @@ export async function DELETE(request: Request) {
       // JSON body optional
     }
 
-    const supabaseAdmin = getAdminSupabase();
-
-    // 1. Purge ALL Videos
+    // 2. Purge ALL Videos
     if (purgeAll === 'true') {
       const { error } = await supabaseAdmin.from('videos').delete().neq('title', '___NONE_EXISTING___');
       if (error) {
@@ -593,7 +697,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: true, message: 'All videos purged successfully' });
     }
 
-    // 2. Bulk Delete Selected IDs Array
+    // 3. Bulk Delete Selected IDs Array
     if (bodyIds.length > 0) {
       const { error } = await supabaseAdmin.from('videos').delete().in('id', bodyIds);
       if (error) {
@@ -602,7 +706,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: true, count: bodyIds.length });
     }
 
-    // 3. Single Item Delete
+    // 4. Single Item Delete
     if (!id) {
       return NextResponse.json({ error: 'Video ID is required' }, { status: 400 });
     }
