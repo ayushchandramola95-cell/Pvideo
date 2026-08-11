@@ -854,14 +854,6 @@ export async function DELETE(request: Request) {
       });
     }
 
-    let bodyIds: string[] = [];
-    try {
-      const body = await request.json();
-      if (Array.isArray(body?.ids)) bodyIds = body.ids;
-    } catch {
-      // JSON body optional
-    }
-
     // 2. Purge ALL Videos
     if (purgeAll === 'true') {
       const { error } = await supabaseAdmin.from('videos').delete().neq('title', '___NONE_EXISTING___');
