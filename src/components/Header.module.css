@@ -2,10 +2,11 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(9, 13, 22, 0.94);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-color);
+  background: rgba(7, 10, 20, 0.96);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   padding: 0.75rem 0;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.5);
 }
 
 .inner {
@@ -41,7 +42,13 @@
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.logo:hover .logoIcon {
+  box-shadow: 0 6px 24px rgba(220, 38, 38, 0.75), 0 0 0 4px rgba(220, 38, 38, 0.15);
+  transform: scale(1.08);
 }
 
 .nav {
@@ -57,12 +64,13 @@
 }
 
 .navLink {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   font-size: 0.92rem;
   font-weight: 600;
-  color: #cbd5e1;
+  color: #94a3b8;
   padding: 0.5rem 0.25rem;
   transition: var(--transition);
   cursor: pointer;
@@ -73,9 +81,33 @@
   white-space: nowrap;
 }
 
-.navLink:hover,
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--accent-gradient);
+  transform: scaleX(0);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navLink:hover {
+  color: #ffffff;
+}
+
+.navLink:hover::after {
+  transform: scaleX(1);
+}
+
 .activeNavLink {
   color: #ffffff;
+}
+
+.activeNavLink::after {
+  transform: scaleX(1);
 }
 
 .liveSexLink {
@@ -200,19 +232,23 @@
 .searchInput {
   width: 100%;
   padding: 0.6rem 1rem 0.6rem 2.5rem;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
+  background: rgba(26, 35, 54, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 30px;
   color: var(--text-primary);
   font-size: 0.88rem;
   outline: none;
-  transition: var(--transition);
+  transition: all 0.25s ease;
+}
+
+.searchInput::placeholder {
+  color: #4a5a74;
 }
 
 .searchInput:focus {
-  border-color: var(--accent-red);
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
-  background: #1e293b;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18), 0 0 16px rgba(220, 38, 38, 0.12);
+  background: rgba(30, 41, 59, 0.95);
 }
 
 .searchIcon {

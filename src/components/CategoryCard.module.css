@@ -1,19 +1,20 @@
 .card {
-  display: flex;
-  flex-direction: column;
-  background: #000000;
+  display: block;
+  position: relative;
+  background: #080b13;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 2px;
+  border-radius: 10px;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(239, 68, 68, 0.5);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+  transform: translateY(-5px);
+  border-color: rgba(220, 38, 38, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(220, 38, 38, 0.15);
 }
 
 .thumbnailWrapper {
@@ -21,39 +22,76 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: #0a0a0a;
+  background: #080b13;
 }
 
 .coverImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.35s ease;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
 }
 
 .card:hover .coverImage {
-  transform: scale(1.06);
+  transform: scale(1.08);
 }
 
+/* Dark gradient overlay from bottom for title readability */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(5, 8, 15, 0.92) 0%,
+    rgba(5, 8, 15, 0.4) 45%,
+    transparent 100%
+  );
+  transition: opacity 0.25s ease;
+  z-index: 1;
+}
+
+/* Title positioned on top of the image */
 .titleBar {
-  padding: 0.42rem 0.5rem;
-  background: #0d0d0d;
-  text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.55rem 0.65rem 0.55rem;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.4rem;
 }
 
 .title {
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 800;
-  color: #e2e8f0;
+  color: #f1f5f9;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: block;
+  flex: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  transition: color 0.15s ease;
 }
 
 .card:hover .title {
-  color: #ef4444;
+  color: #ff6b6b;
+}
+
+/* Video count badge */
+.countBadge {
+  flex-shrink: 0;
+  background: rgba(220, 38, 38, 0.85);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.1rem 0.38rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }

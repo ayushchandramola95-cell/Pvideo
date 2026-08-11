@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   margin: 2.5rem 0 3.5rem;
 }
 
@@ -10,33 +10,37 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 42px;
-  height: 42px;
-  padding: 0 0.85rem;
-  border-radius: 4px;
-  background: #121824;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #cbd5e1;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 0.9rem;
+  border-radius: 8px;
+  background: #0f1826;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: #94a3b8;
   font-weight: 700;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+  font-size: 0.88rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
 }
 
 .pageBtn:hover {
   background: #1e293b;
-  color: white;
-  border-color: #ef4444;
+  color: #ffffff;
+  border-color: rgba(220, 38, 38, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .active {
-  background: #dc2626 !important;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
   color: white !important;
   border-color: #dc2626 !important;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.45), 0 0 0 1px rgba(220, 38, 38, 0.2) !important;
+  transform: translateY(-1px) !important;
 }
 
 .disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   pointer-events: none;
+  cursor: default;
 }

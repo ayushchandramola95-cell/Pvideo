@@ -7,8 +7,16 @@ interface CategoryCardProps {
   category: Category;
 }
 
+function formatCount(n?: number | null): string {
+  if (!n) return '';
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}K views`;
+  return `${n} views`;
+}
+
 export default function CategoryCard({ category }: CategoryCardProps) {
   const coverUrl = getCategoryCoverUrl(category);
+  const countLabel = formatCount(category.views_count);
 
   return (
     <Link href={`/categories/${category.slug}`} className={styles.card}>
@@ -19,12 +27,18 @@ export default function CategoryCard({ category }: CategoryCardProps) {
           className={styles.coverImage}
           loading="lazy"
         />
-      </div>
+        {/* Dark gradient overlay */}
+        <div className={styles.overlay} />
 
-      <div className={styles.titleBar}>
-        <span className={styles.title} title={category.name}>
-          {category.name}
-        </span>
+        {/* Title bar overlaid on image */}
+        <div className={styles.titleBar}>
+          <span className={styles.title} title={category.name}>
+            {category.name}
+          </span>
+          {countLabel && (
+            <span className={styles.countBadge}>{countLabel}</span>
+          )}
+        </div>
       </div>
     </Link>
   );
