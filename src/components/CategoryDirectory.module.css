@@ -39,25 +39,18 @@
   box-shadow: 0 0 8px rgba(220, 38, 38, 0.5);
 }
 
-/* 7 columns grid layout */
+/* Dynamic auto-balanced column layout */
 .columnsGrid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 1rem;
-  align-items: stretch;
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  height: 100%;
+  column-count: 7;
+  column-gap: 1rem;
+  column-fill: balance;
 }
 
 .group {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  margin-bottom: 0.75rem;
 }
 
 .letterHeader {
@@ -98,19 +91,19 @@
 
 @media (max-width: 1400px) {
   .columnsGrid {
-    grid-template-columns: repeat(5, 1fr);
+    column-count: 5;
   }
 }
 
 @media (max-width: 960px) {
   .columnsGrid {
-    grid-template-columns: repeat(3, 1fr);
+    column-count: 3;
   }
 }
 
 @media (max-width: 600px) {
   .columnsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    column-count: 2;
+    column-gap: 0.75rem;
   }
 }
