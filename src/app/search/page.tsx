@@ -10,7 +10,7 @@ interface SearchContentProps {
 }
 
 async function SearchResults({ query, page }: SearchContentProps) {
-  const limit = 20;
+  const limit = 80;
   const videos = await fetchVideos({ searchQuery: query });
   
   const totalVideos = videos.length;

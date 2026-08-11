@@ -11,7 +11,15 @@ interface PaginationProps {
 export default function Pagination({ currentPage, totalPages, baseUrl = '/' }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const maxButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+  if (endPage - startPage + 1 < maxButtons) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
+  }
+
+  const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
   const createPageUrl = (page: number) => {
     const connector = baseUrl.includes('?') ? '&' : '?';
@@ -27,8 +35,18 @@ export default function Pagination({ currentPage, totalPages, baseUrl = '/' }: P
         </Link>
       )}
 
+      {/* First Page Link + Ellipsis */}
+      {startPage > 1 && (
+        <>
+          <Link href={createPageUrl(1)} className={styles.pageBtn}>
+            1
+          </Link>
+          {startPage > 2 && <span className={styles.ellipsis}>...</span>}
+        </>
+      )}
+
       {/* Page Numbers */}
-      {pages.map((p) => (
+      {pageNumbers.map((p) => (
         <Link
           key={p}
           href={createPageUrl(p)}
@@ -37,6 +55,16 @@ export default function Pagination({ currentPage, totalPages, baseUrl = '/' }: P
           {p}
         </Link>
       ))}
+
+      {/* Last Page Link + Ellipsis */}
+      {endPage < totalPages && (
+        <>
+          {endPage < totalPages - 1 && <span className={styles.ellipsis}>...</span>}
+          <Link href={createPageUrl(totalPages)} className={styles.pageBtn}>
+            {totalPages}
+          </Link>
+        </>
+      )}
 
       {/* Next Button */}
       {currentPage < totalPages && (
