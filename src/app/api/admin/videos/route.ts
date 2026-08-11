@@ -52,7 +52,7 @@ export async function GET(request: Request) {
       let allVids: { id: string; external_id: string | null; slug: string; title: string }[] = [];
       let offset = 0;
       let hasMore = true;
-      const batchSize = 10000;
+      const batchSize = 1000;
 
       while (hasMore) {
         let query = supabaseAdmin
@@ -682,7 +682,7 @@ export async function DELETE(request: Request) {
       let allVids: { id: string; external_id: string | null; slug: string; title: string }[] = [];
       let offset = 0;
       let hasMore = true;
-      const batchSize = 10000;
+      const batchSize = 1000;
 
       while (hasMore) {
         let query = supabaseAdmin
