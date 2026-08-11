@@ -1645,7 +1645,7 @@ export default function AdminDashboardPage() {
           <aside className={styles.sidebar}>
             <div className={styles.sidebarHeader}>
               <h1 className={styles.title}>Admin Center</h1>
-              <p className={styles.subtitle}>PVideo Portal Management</p>
+              <p className={styles.subtitle}>Pornora Portal Management</p>
             </div>
 
             <nav className={styles.sidebarNav}>

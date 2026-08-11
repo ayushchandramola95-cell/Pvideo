@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: CategoryPageProps) {
   
   const title = `${category.name} Videos - Releases & Collections`;
   const count = (20666 + (slug.charCodeAt(0) * 850)).toLocaleString();
-  const description = `Browse ${count} ${category.name} releases on PVideo. Explore popular releases, performers, durations, tags and related categories.`;
+  const description = `Browse ${count} ${category.name} releases on Pornora. Explore popular releases, performers, durations, tags and related categories.`;
   
   return {
     title,

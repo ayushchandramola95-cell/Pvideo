@@ -81,7 +81,7 @@ export default function Header() {
                 <path d="M8 5v14l11-7z" />
               </svg>
             </div>
-            <span>P<span className="gradient-text">Video</span></span>
+            <span>Porn<span className="gradient-text">ora</span></span>
           </Link>
 
           <nav className={styles.nav} ref={navRef}>
@@ -281,7 +281,7 @@ export default function Header() {
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-              <span>P<span className="gradient-text">Video</span></span>
+              <span>Porn<span className="gradient-text">ora</span></span>
             </Link>
             <button type="button" className={styles.mobileDrawerClose} onClick={() => setMobileMenuOpen(false)}>
               ✕

@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import PornstarsClient from './PornstarsClient';
 
 const title = 'Top Pornstars & Adult Performers - Releases & Bios';
-const description = 'Browse the ultimate directory of adult performers, model bios, and video releases on PVideo.';
+const description = 'Browse the ultimate directory of adult performers, model bios, and video releases on Pornora.';
 
 export const metadata: Metadata = {
   title,

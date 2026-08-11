@@ -14,7 +14,7 @@ export default async function sitemap({
 }: {
   id: string;
 }): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3008';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site';
 
   if (id === 'categories') {
     const { categories } = await fetchCategories({ limit: 1000 });

@@ -21,11 +21,11 @@ export default function Footer() {
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-              <span>P<span className="gradient-text">Video</span></span>
+              <span>Porn<span className="gradient-text">ora</span></span>
             </div>
 
             <p className={styles.brandDescription}>
-              <strong>PVIDEO.COM is your #1 source for high quality video streaming.</strong> Millions of videos aggregated and self-hosted, closely monitored to give you a safe and pleasurable experience!
+              <strong>PORNORA.SITE is your #1 source for high quality video streaming.</strong> Millions of videos aggregated and self-hosted, closely monitored to give you a safe and pleasurable experience!
             </p>
 
             <div className={styles.parentsBox}>
@@ -36,12 +36,12 @@ export default function Footer() {
                 Parents
               </div>
               <p className={styles.parentsText}>
-                Pvideo.com uses the &quot;Restricted To Adults&quot; (RTA) website label to better enable parental filtering. Protect your children from adult content and block access to this site by using parental controls.
+                Pornora.site uses the &quot;Restricted To Adults&quot; (RTA) website label to better enable parental filtering. Protect your children from adult content and block access to this site by using parental controls.
               </p>
             </div>
 
             <p className={styles.copyright}>
-              &copy; {new Date().getFullYear()} Pvideo.com. All rights reserved.
+              &copy; {new Date().getFullYear()} Pornora.site. All rights reserved.
             </p>
           </div>
 

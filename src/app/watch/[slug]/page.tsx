@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: WatchPageProps) {
 
   const title = `${video.title} - Video Details & Release`;
   const performer = video.performer_name || 'top performers';
-  const description = `Explore ${video.title}, featuring ${performer}. View the release details, duration, categories and related releases on PVideo.`;
+  const description = `Explore ${video.title}, featuring ${performer}. View the release details, duration, categories and related releases on Pornora.`;
   const thumbnailUrl = getThumbnailUrl(video);
 
   return {
@@ -60,7 +60,7 @@ export default async function WatchPage({ params }: WatchPageProps) {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
     name: video.title,
-    description: video.description || `Watch ${video.title} on PVideo.`,
+    description: video.description || `Watch ${video.title} on Pornora.`,
     thumbnailUrl: thumbnailUrl,
     uploadDate: video.created_at,
     contentUrl: video.is_external ? video.external_url : videoUrl,

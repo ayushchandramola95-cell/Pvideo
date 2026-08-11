@@ -51,7 +51,7 @@ export async function generateMetadata({
   const query = resolvedParams.q || '';
   return {
     title: query ? `Search Results for "${query}"` : 'Search Videos',
-    description: query ? `Browse matching video releases for "${query}" on PVideo` : 'Search and watch premium videos on PVideo',
+    description: query ? `Browse matching video releases for "${query}" on Pornora` : 'Search and watch premium videos on Pornora',
     robots: {
       index: false,
       follow: true,

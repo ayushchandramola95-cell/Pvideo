@@ -9,8 +9,8 @@ import { Metadata } from 'next';
 export const revalidate = 60; // Refresh every 60 seconds
 
 export const metadata: Metadata = {
-  title: 'PVideo | Stream Premium Adult Videos & Performers Directory',
-  description: 'Watch high-quality adult video releases, browse performer directories, and stream popular categories in Ultra HD on the PVideo portal.',
+  title: 'Pornora | Stream Premium Adult Videos & Performers Directory',
+  description: 'Watch high-quality adult video releases, browse performer directories, and stream popular categories in Ultra HD on the Pornora portal.',
   alternates: {
     canonical: '/',
   },

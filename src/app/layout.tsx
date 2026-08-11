@@ -5,12 +5,12 @@ import Footer from '@/components/Footer';
 import CategoryDirectory from '@/components/CategoryDirectory';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3008'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site'),
   title: {
-    default: 'PVideo - Premium Video Streaming & Directory Portal',
-    template: '%s | PVideo',
+    default: 'Pornora - Stream Premium Sex Videos & Performers Directory',
+    template: '%s | Pornora',
   },
-  description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on PVideo.',
+  description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on Pornora.',
   robots: {
     index: true,
     follow: true,
@@ -22,14 +22,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: '/',
-    siteName: 'PVideo',
-    title: 'PVideo - Premium Video Streaming & Directory Portal',
-    description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on PVideo.',
+    siteName: 'Pornora',
+    title: 'Pornora - Stream Premium Sex Videos & Performers Directory',
+    description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on Pornora.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PVideo - Premium Video Streaming & Directory Portal',
-    description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on PVideo.',
+    title: 'Pornora - Stream Premium Sex Videos & Performers Directory',
+    description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on Pornora.',
   },
 };
 
@@ -38,12 +38,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3008';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site';
   
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'PVideo',
+    name: 'Pornora',
     url: baseUrl,
     potentialAction: {
       '@type': 'SearchAction',
@@ -58,7 +58,7 @@ export default function RootLayout({
   const orgJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'PVideo',
+    name: 'Pornora',
     url: baseUrl,
     logo: `${baseUrl}/favicon.ico`,
   };
