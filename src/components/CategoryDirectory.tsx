@@ -14,6 +14,37 @@ export default function CategoryDirectory() {
     return null;
   }
 
+  // Contiguously partition the letter groups into 7 balanced columns
+  const numColumns = 7;
+  const columns: typeof CATEGORY_DIRECTORY_GROUPS[] = Array.from({ length: numColumns }, () => []);
+
+  // Calculate weights: items count + 2 for the header block
+  const groupsWithWeight = CATEGORY_DIRECTORY_GROUPS.map(g => ({
+    ...g,
+    weight: g.items.length + 2
+  }));
+
+  const totalWeight = groupsWithWeight.reduce((sum, g) => sum + g.weight, 0);
+  const targetWeightPerColumn = totalWeight / numColumns;
+
+  let currentColumnIdx = 0;
+  let currentColumnWeight = 0;
+
+  groupsWithWeight.forEach((g) => {
+    const weightWithGroup = currentColumnWeight + g.weight;
+    const currentDiff = Math.abs(currentColumnWeight - targetWeightPerColumn);
+    const nextDiff = Math.abs(weightWithGroup - targetWeightPerColumn);
+
+    // Roll over to next column if it achieves a closer weight to target
+    if (currentColumnWeight > 0 && nextDiff > currentDiff && currentColumnIdx < numColumns - 1) {
+      currentColumnIdx++;
+      currentColumnWeight = 0;
+    }
+
+    columns[currentColumnIdx].push(g);
+    currentColumnWeight += g.weight;
+  });
+
   return (
     <section className={styles.section}>
       <div className="container">
@@ -24,20 +55,23 @@ export default function CategoryDirectory() {
           All Categories Directory (A-Z)
         </h2>
 
-        {/* CSS multi-column layout — browser auto-balances all columns to equal height */}
         <div className={styles.columnsGrid}>
-          {CATEGORY_DIRECTORY_GROUPS.map((group) => (
-            <div key={group.letter} className={styles.group}>
-              <div className={styles.letterHeader}>{group.letter}</div>
-              {group.items.map((item) => (
-                <Link
-                  key={item.slug}
-                  href={`/categories/${item.slug}`}
-                  className={styles.categoryLink}
-                  title={item.name}
-                >
-                  {item.name}
-                </Link>
+          {columns.map((columnGroups, colIdx) => (
+            <div key={colIdx} className={styles.column}>
+              {columnGroups.map((group) => (
+                <div key={group.letter} className={styles.group}>
+                  <div className={styles.letterHeader}>{group.letter}</div>
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.slug}
+                      href={`/categories/${item.slug}`}
+                      className={styles.categoryLink}
+                      title={item.name}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
               ))}
             </div>
           ))}
