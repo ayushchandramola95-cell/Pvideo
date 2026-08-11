@@ -43,8 +43,112 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const categoryId = searchParams.get('category_id') || '';
+    const checkDuplicates = searchParams.get('check_duplicates') === 'true';
 
     const supabaseAdmin = getAdminSupabase();
+
+    // 1. Audit duplicate videos in database (Dry-run list)
+    if (checkDuplicates) {
+      let allVids: { id: string; external_id: string | null; slug: string; title: string }[] = [];
+      let lastId = '';
+      let hasMore = true;
+      const batchSize = 10000;
+
+      while (hasMore) {
+        let query = supabaseAdmin
+          .from('videos')
+          .select('id, external_id, slug, title')
+          .order('id', { ascending: true })
+          .limit(batchSize);
+
+        if (lastId) {
+          query = query.gt('id', lastId);
+        }
+
+        const { data, error } = await query;
+        if (error || !data || data.length === 0) {
+          hasMore = false;
+          break;
+        }
+
+        allVids = allVids.concat(data);
+        lastId = data[data.length - 1].id;
+        if (data.length < batchSize) {
+          hasMore = false;
+        }
+      }
+
+      const seenExtIds = new Map<string, { id: string; title: string }>(); // external_id -> original video
+      const seenTitles = new Map<string, { id: string; title: string }>(); // title -> original video
+      const seenSlugs = new Map<string, { id: string; title: string }>(); // slug -> original video
+      const duplicates: { id: string; title: string; slug: string; reason: string }[] = [];
+
+      for (const v of allVids) {
+        const cleanTitle = (v.title || '').trim().toLowerCase();
+        const cleanSlug = (v.slug || '').trim().toLowerCase();
+        let isDuplicate = false;
+        let reason = '';
+
+        // Rule 1: Duplicate by External ID
+        if (v.external_id) {
+          const extId = v.external_id.trim();
+          if (seenExtIds.has(extId)) {
+            isDuplicate = true;
+            const orig = seenExtIds.get(extId)!;
+            reason = `Duplicate External ID (#${extId}) of "${orig.title}"`;
+          } else {
+            seenExtIds.set(extId, { id: v.id, title: v.title });
+          }
+        }
+
+        // Rule 2: Duplicate by Title
+        if (!isDuplicate && cleanTitle) {
+          if (seenTitles.has(cleanTitle)) {
+            isDuplicate = true;
+            const orig = seenTitles.get(cleanTitle)!;
+            reason = `Identical Title with "${orig.title}"`;
+          } else {
+            seenTitles.set(cleanTitle, { id: v.id, title: v.title });
+          }
+        }
+
+        // Rule 3: Duplicate by Slug (or slug with suffix like -1, -2)
+        if (!isDuplicate && cleanSlug) {
+          if (seenSlugs.has(cleanSlug)) {
+            isDuplicate = true;
+            const orig = seenSlugs.get(cleanSlug)!;
+            reason = `Identical Slug (${cleanSlug}) with "${orig.title}"`;
+          } else {
+            seenSlugs.set(cleanSlug, { id: v.id, title: v.title });
+
+            const suffixMatch = cleanSlug.match(/^(.+)-(\d+)$/);
+            if (suffixMatch) {
+              const baseSlug = suffixMatch[1];
+              if (seenSlugs.has(baseSlug)) {
+                isDuplicate = true;
+                const orig = seenSlugs.get(baseSlug)!;
+                reason = `Duplicate Slug Variation (${cleanSlug} matches base slug of "${orig.title}")`;
+              }
+            }
+          }
+        }
+
+        if (isDuplicate) {
+          duplicates.push({
+            id: v.id,
+            title: v.title,
+            slug: v.slug,
+            reason,
+          });
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        scanned: allVids.length,
+        duplicates,
+      });
+    }
 
     let query = supabaseAdmin
       .from('videos')

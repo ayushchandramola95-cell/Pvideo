@@ -117,6 +117,16 @@ export default function AdminDashboardPage() {
     items: [],
   });
 
+  const [dupModal, setDupModal] = useState<{
+    isOpen: boolean;
+    scannedCount: number;
+    items: { id: string; title: string; slug: string; reason: string }[];
+  }>({
+    isOpen: false,
+    scannedCount: 0,
+    items: [],
+  });
+
   const [summarySearch, setSummarySearch] = useState('');
   const [summaryFilterTab, setSummaryFilterTab] = useState<'all' | 'created' | 'already_existed'>('all');
 
@@ -1313,27 +1323,62 @@ export default function AdminDashboardPage() {
   };
 
   const handleCleanDuplicates = async () => {
-    if (!confirm('⚠️ You are about to scan all database records for duplicates and delete them. This process may take a few seconds.\n\nDo you want to proceed?')) {
-      return;
-    }
-
     setLoading(true);
     setMessage(null);
 
     try {
-      const res = await fetch('/api/admin/videos?clean_duplicates=true', { method: 'DELETE' });
+      const res = await fetch('/api/admin/videos?check_duplicates=true');
       const data = await res.json();
       if (!res.ok || data.error) {
-        throw new Error(data.error || 'Failed to clean duplicates');
+        throw new Error(data.error || 'Failed to scan duplicates');
+      }
+
+      setDupModal({
+        isOpen: true,
+        scannedCount: data.scanned,
+        items: data.duplicates || [],
+      });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Error scanning duplicates' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmDeleteDuplicates = async () => {
+    if (dupModal.items.length === 0) return;
+
+    const confirmText = prompt(
+      `⚠️ WARNING: You are about to permanently delete all ${dupModal.items.length.toLocaleString()} duplicate videos from your database!\n\nType "CONFIRM DELETE" to proceed:`
+    );
+
+    if (confirmText !== 'CONFIRM DELETE') {
+      alert('Deletion cancelled.');
+      return;
+    }
+
+    setLoading(true);
+    setDupModal((prev) => ({ ...prev, isOpen: false }));
+
+    try {
+      const res = await fetch('/api/admin/videos', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: dupModal.items.map((item) => item.id) }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Failed to delete duplicates');
       }
 
       setMessage({
         type: 'success',
-        text: `🎉 Deduplication complete! Scanned ${data.scanned.toLocaleString()} videos, found and deleted ${data.deletedCount.toLocaleString()} duplicate records.`,
+        text: `🎉 Successfully cleaned database! Deleted ${data.count.toLocaleString()} duplicate video records.`,
       });
       loadVideos();
     } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Error cleaning duplicates' });
+      setMessage({ type: 'error', text: err.message || 'Error deleting duplicates' });
     } finally {
       setLoading(false);
     }
@@ -3906,6 +3951,97 @@ export default function AdminDashboardPage() {
                 ✓ Done & View Directory ({importProgress.savedCount.toLocaleString()} Performers)
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* POPUP MODAL 9: DEDUPLICATION AUDIT MODAL */}
+      {dupModal.isOpen && (
+        <div className={`${styles.modalOverlay} ${styles.topModalOverlay}`} onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}>
+          <div className={`${styles.modalContent} ${styles.largeModalContent}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '850px', background: '#070a11', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '12px', boxShadow: '0 0 50px rgba(59, 130, 246, 0.2)' }}>
+            <div className={styles.modalHeader} style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ fontSize: '1.8rem' }}>🧹</div>
+                <div>
+                  <h3 className={styles.modalTitle} style={{ color: '#ffffff', margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>
+                    Duplicate Videos Database Audit
+                  </h3>
+                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.2rem' }}>
+                    Scanned {dupModal.scannedCount.toLocaleString()} total videos in database. Found {dupModal.items.length.toLocaleString()} duplicates.
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}
+                className={styles.modalCloseBtn}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ padding: '1.5rem', maxHeight: '450px', overflowY: 'auto' }}>
+              {dupModal.items.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#a3a3a3', padding: '3rem 0' }}>
+                  <span style={{ fontSize: '2.5rem' }}>🎉</span>
+                  <h4 style={{ margin: '1rem 0 0.5rem 0', color: '#ffffff', fontWeight: 700 }}>No Duplicates Found!</h4>
+                  <p style={{ fontSize: '0.85rem' }}>Your database is perfectly clean. Every video record has a unique external ID, slug, and title.</p>
+                </div>
+              ) : (
+                <>
+                  <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', padding: '1rem', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '1.25rem', display: 'flex', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '1.3rem' }}>⚠️</span>
+                    <div>
+                      <strong>Action Required:</strong> Below is the detailed list of duplicates identified. Confirming deletion will permanently wipe these {dupModal.items.length} records and keep only the original entries.
+                    </div>
+                  </div>
+
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>
+                        <th style={{ padding: '0.5rem 0.75rem' }}>Video Title / Slug</th>
+                        <th style={{ padding: '0.5rem 0.75rem' }}>Reason for Duplicate Detection</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dupModal.items.map((item, idx) => (
+                        <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: '#e2e8f0' }}>
+                          <td style={{ padding: '0.6rem 0.75rem' }}>
+                            <div style={{ fontWeight: 'bold' }}>{item.title}</div>
+                            <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.1rem' }}>slug: {item.slug}</div>
+                          </td>
+                          <td style={{ padding: '0.6rem 0.75rem', color: '#fca5a5' }}>
+                            {item.reason}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
+            </div>
+
+            <div className={styles.modalFooter} style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}
+                className={styles.submitBtn}
+                style={{ background: 'rgba(255,255,255,0.08)', color: '#ffffff', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+              >
+                Close Audit
+              </button>
+              {dupModal.items.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteDuplicates}
+                  disabled={loading}
+                  className={styles.submitBtn}
+                  style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)', color: '#ffffff', padding: '0.5rem 1.5rem', fontSize: '0.85rem', fontWeight: 800, boxShadow: '0 0 15px rgba(239, 68, 68, 0.3)' }}
+                >
+                  🔥 Confirm Delete & Clean ({dupModal.items.length})
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
