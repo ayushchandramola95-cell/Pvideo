@@ -50,7 +50,7 @@ export async function GET(request: Request) {
     // 1. Audit duplicate videos in database (Dry-run list)
     if (checkDuplicates) {
       let allVids: { id: string; external_id: string | null; slug: string; title: string }[] = [];
-      let lastId = '';
+      let offset = 0;
       let hasMore = true;
       const batchSize = 10000;
 
@@ -58,12 +58,8 @@ export async function GET(request: Request) {
         let query = supabaseAdmin
           .from('videos')
           .select('id, external_id, slug, title')
-          .order('id', { ascending: true })
-          .limit(batchSize);
-
-        if (lastId) {
-          query = query.gt('id', lastId);
-        }
+          .order('created_at', { ascending: true })
+          .range(offset, offset + batchSize - 1);
 
         const { data, error } = await query;
         if (error || !data || data.length === 0) {
@@ -72,7 +68,7 @@ export async function GET(request: Request) {
         }
 
         allVids = allVids.concat(data);
-        lastId = data[data.length - 1].id;
+        offset += data.length;
         if (data.length < batchSize) {
           hasMore = false;
         }
@@ -684,7 +680,7 @@ export async function DELETE(request: Request) {
     // 1. Clean duplicates across all videos (Supports 60k+ videos using keyset pagination)
     if (cleanDuplicates === 'true') {
       let allVids: { id: string; external_id: string | null; slug: string; title: string }[] = [];
-      let lastId = '';
+      let offset = 0;
       let hasMore = true;
       const batchSize = 10000;
 
@@ -692,12 +688,8 @@ export async function DELETE(request: Request) {
         let query = supabaseAdmin
           .from('videos')
           .select('id, external_id, slug, title')
-          .order('id', { ascending: true })
-          .limit(batchSize);
-
-        if (lastId) {
-          query = query.gt('id', lastId);
-        }
+          .order('created_at', { ascending: true })
+          .range(offset, offset + batchSize - 1);
 
         const { data, error } = await query;
         if (error || !data || data.length === 0) {
@@ -706,7 +698,7 @@ export async function DELETE(request: Request) {
         }
 
         allVids = allVids.concat(data);
-        lastId = data[data.length - 1].id;
+        offset += data.length;
         if (data.length < batchSize) {
           hasMore = false;
         }
