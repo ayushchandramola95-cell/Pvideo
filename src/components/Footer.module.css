@@ -1,0 +1,206 @@
+.footer {
+  margin-top: auto;
+  background: #05080e;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3rem 0 2rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  position: relative;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 2.2fr 1.2fr 1.6fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  background: var(--accent-gradient);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.brandDescription {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+.brandDescription strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.parentsBox {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.9rem 1.1rem;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.parentsHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.parentsText {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.copyright {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+.columnGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.columnTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.linkList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.linkList a {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.linkList a:hover {
+  color: #ef4444;
+}
+
+.badgeColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: flex-end;
+}
+
+.rtaBadge {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.1em;
+  border: 2px solid #ffffff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.asacpBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: #cbd5e1;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.asacpSub {
+  font-size: 0.62rem;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.pineappleBadge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1;
+}
+
+.pineappleBadge span {
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+
+.scrollTopBtn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 36px;
+  height: 36px;
+  background: #1e293b;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 90;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+}
+
+.scrollTopBtn:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .badgeColumn {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
