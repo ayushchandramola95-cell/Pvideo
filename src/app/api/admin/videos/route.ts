@@ -99,16 +99,52 @@ export async function POST(request: Request) {
       const existingTagsMap = new Map<string, any>(); // key: normName or slug
 
       try {
-        const { data: dbVids } = await supabaseAdmin.from('videos').select('*');
-        if (dbVids) {
-          for (const v of dbVids) {
-            if (v.external_id) {
-              const src = v.external_source || 'redporn';
-              existingVideosMap.set(`${src}:${v.external_id}`, v);
-            }
-            if (v.slug) {
-              existingVideosMap.set(`slug:${v.slug.toLowerCase()}`, v);
-            }
+        // Build list of external IDs and slugs from the incoming batch to query only target rows
+        const batchExtIds = rawItems.map(item => {
+          const targetUrl = item.external_url || item.url || '';
+          const { external_id } = extractExternalId(item.external_id || targetUrl);
+          return external_id;
+        }).filter(Boolean);
+
+        const batchSlugs = rawItems.map(item => {
+          if (item.slug) return item.slug.trim().toLowerCase();
+          if (item.title) return normalizeSlug(item.title).toLowerCase();
+          return null;
+        }).filter(Boolean);
+
+        let dbVids: any[] = [];
+
+        // Query database only for matching records (efficient, safe for 60k+ videos)
+        if (batchExtIds.length > 0) {
+          const { data } = await supabaseAdmin
+            .from('videos')
+            .select('*')
+            .in('external_id', batchExtIds);
+          if (data) dbVids = dbVids.concat(data);
+        }
+
+        if (batchSlugs.length > 0) {
+          const { data } = await supabaseAdmin
+            .from('videos')
+            .select('*')
+            .in('slug', batchSlugs);
+          if (data) {
+            const existingIds = new Set(dbVids.map(v => v.id));
+            data.forEach(v => {
+              if (!existingIds.has(v.id)) {
+                dbVids.push(v);
+              }
+            });
+          }
+        }
+
+        for (const v of dbVids) {
+          if (v.external_id) {
+            const src = v.external_source || 'redporn';
+            existingVideosMap.set(`${src}:${v.external_id}`, v);
+          }
+          if (v.slug) {
+            existingVideosMap.set(`slug:${v.slug.toLowerCase()}`, v);
           }
         }
       } catch (e) {
@@ -232,6 +268,11 @@ export async function POST(request: Request) {
         const seqTimestamp = new Date(nowBase + Math.max(totalCount - orderIdx, 0) * 1000).toISOString();
 
         if (targetVid) {
+          // If this is a duplicate within the same batch, skip creating a redundant copy
+          if (String(targetVid.id).startsWith('temp-')) {
+            continue;
+          }
+
           // CASE 2: Video Already Exists! Update sequence timestamp so order is refreshed to top
           updatedCount++;
 
@@ -285,6 +326,13 @@ export async function POST(request: Request) {
             extKey,
             thumbnail_url: item.thumbnail_url,
           });
+
+          // Add to existingVideosMap so subsequent duplicates in the same batch are detected as "already existed"!
+          const tempVideoObj = { id: `temp-${idx}`, title: cleanTitle, slug: cleanSlug };
+          if (extKey) {
+            existingVideosMap.set(extKey, tempVideoObj);
+          }
+          existingVideosMap.set(`slug:${cleanSlug.toLowerCase()}`, tempVideoObj);
         }
       }
 
