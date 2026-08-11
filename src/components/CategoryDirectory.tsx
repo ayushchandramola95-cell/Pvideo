@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BALANCED_DIRECTORY_COLUMNS } from '@/lib/data';
+import { CATEGORY_DIRECTORY_GROUPS } from '@/lib/data';
 import styles from './CategoryDirectory.module.css';
 
 export default function CategoryDirectory() {
@@ -18,29 +18,26 @@ export default function CategoryDirectory() {
     <section className={styles.section}>
       <div className="container">
         <h2 className={styles.title}>
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M4 6h16M4 12h16M4 18h7" />
           </svg>
           All Categories Directory (A-Z)
         </h2>
 
+        {/* CSS multi-column layout — browser auto-balances all columns to equal height */}
         <div className={styles.columnsGrid}>
-          {BALANCED_DIRECTORY_COLUMNS.map((columnGroups, colIdx) => (
-            <div key={colIdx} className={styles.column}>
-              {columnGroups.map((group) => (
-                <div key={group.letter} className={styles.group}>
-                  <div className={styles.letterHeader}>{group.letter}</div>
-                  {group.items.map((item) => (
-                    <Link
-                      key={item.slug}
-                      href={`/categories/${item.slug}`}
-                      className={styles.categoryLink}
-                      title={item.name}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
+          {CATEGORY_DIRECTORY_GROUPS.map((group) => (
+            <div key={group.letter} className={styles.group}>
+              <div className={styles.letterHeader}>{group.letter}</div>
+              {group.items.map((item) => (
+                <Link
+                  key={item.slug}
+                  href={`/categories/${item.slug}`}
+                  className={styles.categoryLink}
+                  title={item.name}
+                >
+                  {item.name}
+                </Link>
               ))}
             </div>
           ))}

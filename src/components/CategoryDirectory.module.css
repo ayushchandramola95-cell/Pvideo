@@ -9,26 +9,24 @@
   font-weight: 800;
   color: #f8fafc;
   margin-bottom: 1.25rem;
-}
-
-.columnsGrid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.65rem;
-  align-items: stretch;
-}
-
-.column {
   display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  height: 100%;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* CSS multi-column — browser automatically balances all columns to equal height */
+.columnsGrid {
+  column-count: 7;
+  column-gap: 0.65rem;
+  column-fill: balance;
 }
 
 .group {
+  break-inside: avoid;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  margin-bottom: 0.85rem;
 }
 
 .letterHeader {
@@ -43,6 +41,7 @@
 }
 
 .categoryLink {
+  display: block;
   background: #111622;
   color: #cbd5e1;
   font-size: 0.8rem;
@@ -65,19 +64,19 @@
 
 @media (max-width: 1400px) {
   .columnsGrid {
-    grid-template-columns: repeat(5, 1fr);
+    column-count: 5;
   }
 }
 
 @media (max-width: 960px) {
   .columnsGrid {
-    grid-template-columns: repeat(3, 1fr);
+    column-count: 3;
   }
 }
 
 @media (max-width: 600px) {
   .columnsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.4rem;
+    column-count: 2;
+    column-gap: 0.4rem;
   }
 }
