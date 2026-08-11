@@ -120,7 +120,7 @@ export default function AdminDashboardPage() {
   const [dupModal, setDupModal] = useState<{
     isOpen: boolean;
     scannedCount: number;
-    items: { id: string; title: string; slug: string; reason: string }[];
+    items: { id: string; title: string; slug: string; category_id?: string | null; category_name?: string; reason: string }[];
   }>({
     isOpen: false,
     scannedCount: 0,
@@ -128,6 +128,8 @@ export default function AdminDashboardPage() {
   });
 
   const [isScanning, setIsScanning] = useState(false);
+  const [dupSearch, setDupSearch] = useState('');
+  const [dupCategoryFilter, setDupCategoryFilter] = useState('ALL');
 
   const [summarySearch, setSummarySearch] = useState('');
   const [summaryFilterTab, setSummaryFilterTab] = useState<'all' | 'created' | 'already_existed'>('all');
@@ -1350,10 +1352,22 @@ export default function AdminDashboardPage() {
   };
 
   const handleConfirmDeleteDuplicates = async () => {
-    if (dupModal.items.length === 0) return;
+    // Filter duplicates using current UI filters
+    const filteredDuplicates = dupModal.items.filter(item => {
+      const matchesSearch = !dupSearch.trim() || 
+        item.title.toLowerCase().includes(dupSearch.toLowerCase()) || 
+        item.slug.toLowerCase().includes(dupSearch.toLowerCase());
+      
+      const matchesCategory = dupCategoryFilter === 'ALL' || 
+        (item.category_name || 'Uncategorized') === dupCategoryFilter;
+        
+      return matchesSearch && matchesCategory;
+    });
+
+    if (filteredDuplicates.length === 0) return;
 
     const confirmText = prompt(
-      `⚠️ WARNING: You are about to permanently delete all ${dupModal.items.length.toLocaleString()} duplicate videos from your database!\n\nType "CONFIRM DELETE" to proceed:`
+      `⚠️ WARNING: You are about to permanently delete all ${filteredDuplicates.length.toLocaleString()} duplicate videos matching your current filter from your database!\n\nType "CONFIRM DELETE" to proceed:`
     );
 
     if (confirmText !== 'CONFIRM DELETE') {
@@ -1368,6 +1382,8 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch('/api/admin/videos?clean_duplicates=true', {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: filteredDuplicates.map(item => item.id) }),
       });
 
       const data = await res.json();
@@ -3990,95 +4006,153 @@ export default function AdminDashboardPage() {
       )}
 
       {/* POPUP MODAL 9: DEDUPLICATION AUDIT MODAL */}
-      {dupModal.isOpen && (
-        <div className={`${styles.modalOverlay} ${styles.topModalOverlay}`} onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}>
-          <div className={`${styles.modalContent} ${styles.largeModalContent}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '850px', background: '#070a11', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '12px', boxShadow: '0 0 50px rgba(59, 130, 246, 0.2)' }}>
-            <div className={styles.modalHeader} style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ fontSize: '1.8rem' }}>🧹</div>
-                <div>
-                  <h3 className={styles.modalTitle} style={{ color: '#ffffff', margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>
-                    Duplicate Videos Database Audit
-                  </h3>
-                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.2rem' }}>
-                    Scanned {dupModal.scannedCount.toLocaleString()} total videos in database. Found {dupModal.items.length.toLocaleString()} duplicates.
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}
-                className={styles.modalCloseBtn}
-              >
-                ✕
-              </button>
-            </div>
+      {dupModal.isOpen && (() => {
+        const uniqueDupCategories = Array.from(new Set(dupModal.items.map(item => item.category_name || 'Uncategorized'))).filter(Boolean).sort();
+        
+        const filteredDuplicates = dupModal.items.filter(item => {
+          const matchesSearch = !dupSearch.trim() || 
+            item.title.toLowerCase().includes(dupSearch.toLowerCase()) || 
+            item.slug.toLowerCase().includes(dupSearch.toLowerCase());
+          
+          const matchesCategory = dupCategoryFilter === 'ALL' || 
+            (item.category_name || 'Uncategorized') === dupCategoryFilter;
+            
+          return matchesSearch && matchesCategory;
+        });
 
-            <div style={{ padding: '1.5rem', maxHeight: '450px', overflowY: 'auto' }}>
-              {dupModal.items.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#a3a3a3', padding: '3rem 0' }}>
-                  <span style={{ fontSize: '2.5rem' }}>🎉</span>
-                  <h4 style={{ margin: '1rem 0 0.5rem 0', color: '#ffffff', fontWeight: 700 }}>No Duplicates Found!</h4>
-                  <p style={{ fontSize: '0.85rem' }}>Your database is perfectly clean. Every video record has a unique external ID, slug, and title.</p>
-                </div>
-              ) : (
-                <>
-                  <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', padding: '1rem', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '1.25rem', display: 'flex', gap: '0.75rem' }}>
-                    <span style={{ fontSize: '1.3rem' }}>⚠️</span>
-                    <div>
-                      <strong>Action Required:</strong> Below is the detailed list of duplicates identified. Confirming deletion will permanently wipe these {dupModal.items.length} records and keep only the original entries.
+        return (
+          <div className={`${styles.modalOverlay} ${styles.topModalOverlay}`} onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}>
+            <div className={`${styles.modalContent} ${styles.largeModalContent}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '900px', background: '#070a11', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '12px', boxShadow: '0 0 50px rgba(59, 130, 246, 0.2)' }}>
+              <div className={styles.modalHeader} style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ fontSize: '1.8rem' }}>🧹</div>
+                  <div>
+                    <h3 className={styles.modalTitle} style={{ color: '#ffffff', margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>
+                      Duplicate Videos Database Audit
+                    </h3>
+                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.2rem' }}>
+                      Scanned {dupModal.scannedCount.toLocaleString()} total videos in database. Found {dupModal.items.length.toLocaleString()} duplicates.
                     </div>
                   </div>
-
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>
-                        <th style={{ padding: '0.5rem 0.75rem' }}>Video Title / Slug</th>
-                        <th style={{ padding: '0.5rem 0.75rem' }}>Reason for Duplicate Detection</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dupModal.items.map((item, idx) => (
-                        <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: '#e2e8f0' }}>
-                          <td style={{ padding: '0.6rem 0.75rem' }}>
-                            <div style={{ fontWeight: 'bold' }}>{item.title}</div>
-                            <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.1rem' }}>slug: {item.slug}</div>
-                          </td>
-                          <td style={{ padding: '0.6rem 0.75rem', color: '#fca5a5' }}>
-                            {item.reason}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-            </div>
-
-            <div className={styles.modalFooter} style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-              <button
-                type="button"
-                onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}
-                className={styles.submitBtn}
-                style={{ background: 'rgba(255,255,255,0.08)', color: '#ffffff', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
-              >
-                Close Audit
-              </button>
-              {dupModal.items.length > 0 && (
+                </div>
                 <button
                   type="button"
-                  onClick={handleConfirmDeleteDuplicates}
-                  disabled={loading}
-                  className={styles.submitBtn}
-                  style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)', color: '#ffffff', padding: '0.5rem 1.5rem', fontSize: '0.85rem', fontWeight: 800, boxShadow: '0 0 15px rgba(239, 68, 68, 0.3)' }}
+                  onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}
+                  className={styles.modalCloseBtn}
                 >
-                  🔥 Confirm Delete & Clean ({dupModal.items.length})
+                  ✕
                 </button>
+              </div>
+
+              {/* Advanced Filter and Search Bar */}
+              {dupModal.items.length > 0 && (
+                <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <div style={{ flex: 1, display: 'flex', gap: '0.75rem' }}>
+                    <input
+                      type="text"
+                      placeholder="🔍 Search duplicates by title or slug..."
+                      value={dupSearch}
+                      onChange={(e) => setDupSearch(e.target.value)}
+                      style={{ flex: 1, padding: '0.5rem 0.75rem', fontSize: '0.82rem', background: '#0a0f1d', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#ffffff' }}
+                    />
+                    <select
+                      value={dupCategoryFilter}
+                      onChange={(e) => setDupCategoryFilter(e.target.value)}
+                      style={{ width: '180px', padding: '0.5rem 0.75rem', fontSize: '0.82rem', background: '#0a0f1d', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#ffffff' }}
+                    >
+                      <option value="ALL">All Categories ({dupModal.items.length})</option>
+                      {uniqueDupCategories.map(cat => {
+                        const count = dupModal.items.filter(item => (item.category_name || 'Uncategorized') === cat).length;
+                        return (
+                          <option key={cat} value={cat}>{cat} ({count})</option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>
+                    Showing: <span style={{ color: '#60a5fa' }}>{filteredDuplicates.length}</span> of {dupModal.items.length} duplicates
+                  </div>
+                </div>
               )}
+
+              <div style={{ padding: '1.5rem', maxHeight: '420px', overflowY: 'auto' }}>
+                {dupModal.items.length === 0 ? (
+                  <div style={{ textAlign: 'center', color: '#a3a3a3', padding: '3rem 0' }}>
+                    <span style={{ fontSize: '2.5rem' }}>🎉</span>
+                    <h4 style={{ margin: '1rem 0 0.5rem 0', color: '#ffffff', fontWeight: 700 }}>No Duplicates Found!</h4>
+                    <p style={{ fontSize: '0.85rem' }}>Your database is perfectly clean. Every video record has a unique external ID, slug, and title.</p>
+                  </div>
+                ) : filteredDuplicates.length === 0 ? (
+                  <div style={{ textAlign: 'center', color: '#a3a3a3', padding: '3rem 0' }}>
+                    <span style={{ fontSize: '2rem' }}>🔍</span>
+                    <h4 style={{ margin: '1rem 0 0.5rem 0', color: '#ffffff', fontWeight: 700 }}>No Matches</h4>
+                    <p style={{ fontSize: '0.85rem' }}>No duplicate video matches the active search term or category filter.</p>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', padding: '1rem', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '1.25rem', display: 'flex', gap: '0.75rem' }}>
+                      <span style={{ fontSize: '1.3rem' }}>⚠️</span>
+                      <div>
+                        <strong>Action Required:</strong> Deletion will permanently wipe the currently displayed {filteredDuplicates.length} duplicate records and safely map their associations back to the original entries.
+                      </div>
+                    </div>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>
+                          <th style={{ padding: '0.5rem 0.75rem' }}>Video Title / Slug</th>
+                          <th style={{ padding: '0.5rem 0.75rem' }}>Category</th>
+                          <th style={{ padding: '0.5rem 0.75rem' }}>Reason for Duplicate Detection</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredDuplicates.map((item, idx) => (
+                          <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: '#e2e8f0' }}>
+                            <td style={{ padding: '0.6rem 0.75rem' }}>
+                              <div style={{ fontWeight: 'bold' }}>{item.title}</div>
+                              <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.1rem' }}>slug: {item.slug}</div>
+                            </td>
+                            <td style={{ padding: '0.6rem 0.75rem' }}>
+                              <span style={{ display: 'inline-block', padding: '0.2rem 0.5rem', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, border: '1px solid rgba(255,255,255,0.08)' }}>
+                                📁 {item.category_name || 'Uncategorized'}
+                              </span>
+                            </td>
+                            <td style={{ padding: '0.6rem 0.75rem', color: '#fca5a5' }}>
+                              {item.reason}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+              </div>
+
+              <div className={styles.modalFooter} style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setDupModal(prev => ({ ...prev, isOpen: false }))}
+                  className={styles.submitBtn}
+                  style={{ background: 'rgba(255,255,255,0.08)', color: '#ffffff', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+                >
+                  Close Audit
+                </button>
+                {filteredDuplicates.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleConfirmDeleteDuplicates}
+                    disabled={loading}
+                    className={styles.submitBtn}
+                    style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)', color: '#ffffff', padding: '0.5rem 1.5rem', fontSize: '0.85rem', fontWeight: 800, boxShadow: '0 0 15px rgba(239, 68, 68, 0.3)' }}
+                  >
+                    🔥 Confirm Delete & Clean ({filteredDuplicates.length})
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* POPUP MODAL 8: VISUAL POST-IMPORT DETAILED SUMMARY MODAL */}
       {importSummaryModal.isOpen && (

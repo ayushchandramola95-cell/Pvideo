@@ -49,7 +49,20 @@ export async function GET(request: Request) {
 
     // 1. Audit duplicate videos in database (Dry-run list)
     if (checkDuplicates) {
-      let allVids: { id: string; external_id: string | null; slug: string; title: string }[] = [];
+      // Load all categories to map category_id to category name
+      const categoriesMap = new Map<string, string>();
+      try {
+        const { data: dbCats } = await supabaseAdmin.from('categories').select('id, name');
+        if (dbCats) {
+          for (const c of dbCats) {
+            categoriesMap.set(c.id, c.name);
+          }
+        }
+      } catch (e) {
+        console.warn('Categories scan load warning:', e);
+      }
+
+      let allVids: { id: string; external_id: string | null; slug: string; title: string; category_id: string | null }[] = [];
       let offset = 0;
       let hasMore = true;
       const batchSize = 1000;
@@ -57,7 +70,7 @@ export async function GET(request: Request) {
       while (hasMore) {
         let query = supabaseAdmin
           .from('videos')
-          .select('id, external_id, slug, title')
+          .select('id, external_id, slug, title, category_id')
           .order('created_at', { ascending: true })
           .range(offset, offset + batchSize - 1);
 
@@ -77,7 +90,7 @@ export async function GET(request: Request) {
       const seenExtIds = new Map<string, { id: string; title: string }>(); // external_id -> original video
       const seenTitles = new Map<string, { id: string; title: string }>(); // title -> original video
       const seenSlugs = new Map<string, { id: string; title: string }>(); // slug -> original video
-      const duplicates: { id: string; title: string; slug: string; reason: string }[] = [];
+      const duplicates: { id: string; title: string; slug: string; category_id: string | null; category_name: string; reason: string }[] = [];
 
       for (const v of allVids) {
         const cleanTitle = (v.title || '').trim().toLowerCase();
@@ -134,6 +147,8 @@ export async function GET(request: Request) {
             id: v.id,
             title: v.title,
             slug: v.slug,
+            category_id: v.category_id || null,
+            category_name: v.category_id ? (categoriesMap.get(v.category_id) || 'Unknown') : 'Uncategorized',
             reason,
           });
         }
@@ -675,6 +690,14 @@ export async function DELETE(request: Request) {
     const purgeAll = searchParams.get('purge_all');
     const cleanDuplicates = searchParams.get('clean_duplicates');
 
+    let bodyIds: string[] = [];
+    try {
+      const body = await request.json();
+      if (Array.isArray(body?.ids)) bodyIds = body.ids;
+    } catch {
+      // JSON body optional
+    }
+
     const supabaseAdmin = getAdminSupabase();
 
     // 1. Clean duplicates across all videos (Supports 60k+ videos using keyset pagination)
@@ -758,8 +781,11 @@ export async function DELETE(request: Request) {
         }
 
         if (isDuplicate && origId) {
-          duplicateIds.push(v.id);
-          dupToOrigMap.set(v.id, origId);
+          const targetIdsSet = bodyIds.length > 0 ? new Set(bodyIds) : null;
+          if (!targetIdsSet || targetIdsSet.has(v.id)) {
+            duplicateIds.push(v.id);
+            dupToOrigMap.set(v.id, origId);
+          }
         }
       }
 
