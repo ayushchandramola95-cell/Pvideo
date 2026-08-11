@@ -75,9 +75,9 @@ export default function Footer() {
               Support
             </h4>
             <ul className={styles.linkList}>
-              <li><Link href="/search">FAQ</Link></li>
-              <li><Link href="/search">Help Us Improve</Link></li>
-              <li><Link href="/search">Contact Us</Link></li>
+              <li><Link href="/info/faq">FAQ</Link></li>
+              <li><Link href="/info/contact">Help Us Improve</Link></li>
+              <li><Link href="/info/contact">Contact Us</Link></li>
             </ul>
 
             <h4 className={styles.colTitle} style={{ marginTop: '1.5rem' }}>
@@ -85,8 +85,8 @@ export default function Footer() {
               Advertisers
             </h4>
             <ul className={styles.linkList}>
-              <li><Link href="/search">Buy Traffic</Link></li>
-              <li><Link href="/search">Get Listed</Link></li>
+              <li><Link href="/info/advertise">Buy Traffic</Link></li>
+              <li><Link href="/info/advertise">Get Listed</Link></li>
             </ul>
           </div>
 
@@ -97,14 +97,14 @@ export default function Footer() {
               Legal
             </h4>
             <ul className={styles.linkList}>
-              <li><Link href="/search">Terms of Service</Link></li>
-              <li><Link href="/search">Privacy Statement</Link></li>
-              <li><Link href="/search">Statement of Responsibility</Link></li>
-              <li><Link href="/search">DMCA / Copyright</Link></li>
-              <li><Link href="/search">Notice &amp; Link Removal</Link></li>
-              <li><Link href="/search">Acceptable Content Policy</Link></li>
-              <li><Link href="/search">Digital Services Act</Link></li>
-              <li><Link href="/search">2257</Link></li>
+              <li><Link href="/info/terms">Terms of Service</Link></li>
+              <li><Link href="/info/privacy">Privacy Statement</Link></li>
+              <li><Link href="/info/responsibility">Statement of Responsibility</Link></li>
+              <li><Link href="/info/dmca">DMCA / Copyright</Link></li>
+              <li><Link href="/info/notice-action">Notice &amp; Link Removal</Link></li>
+              <li><Link href="/info/acceptable-content">Acceptable Content Policy</Link></li>
+              <li><Link href="/info/dsa">Digital Services Act</Link></li>
+              <li><Link href="/info/2257">2257</Link></li>
               <li><Link href="/admin">Admin Portal</Link></li>
             </ul>
           </div>
