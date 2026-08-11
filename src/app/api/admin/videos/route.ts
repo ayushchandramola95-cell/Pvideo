@@ -200,13 +200,13 @@ export async function POST(request: Request) {
 
       try {
         // Build list of external IDs and slugs from the incoming batch to query only target rows
-        const batchExtIds = rawItems.map(item => {
+        const batchExtIds = rawItems.map((item: any) => {
           const targetUrl = item.external_url || item.url || '';
           const { external_id } = extractExternalId(item.external_id || targetUrl);
           return external_id;
         }).filter(Boolean);
 
-        const batchSlugs = rawItems.map(item => {
+        const batchSlugs = rawItems.map((item: any) => {
           if (item.slug) return item.slug.trim().toLowerCase();
           if (item.title) return normalizeSlug(item.title).toLowerCase();
           return null;
