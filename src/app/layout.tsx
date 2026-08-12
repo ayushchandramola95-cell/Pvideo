@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   verification: {
     google: 'lUMmMI3enr0WA1BJKo50Ndp57LW-5x1M2OllPx4Ftqc',
     other: {
-      '6a97888e-site-verification': 'f11e0f627dff70b68218d13ec9a201a9',
+      '6a97888e-site-verification': '0903022b94f04443cad9936e64122645',
     },
   },
   openGraph: {
