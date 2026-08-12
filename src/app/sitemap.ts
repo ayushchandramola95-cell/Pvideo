@@ -1,54 +1,52 @@
 import { MetadataRoute } from 'next';
 import { fetchCategories, fetchVideos } from '@/lib/data';
 
-export async function generateSitemaps() {
-  return [
-    { id: 'main' },
-    { id: 'categories' },
-    { id: 'videos' },
-  ];
-}
-
-export default async function sitemap({
-  id,
-}: {
-  id: string;
-}): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site';
 
-  if (id === 'categories') {
-    const { categories } = await fetchCategories({ limit: 1000 });
-    return categories.map((cat) => ({
-      url: `${baseUrl}/categories/${cat.slug}`,
-      lastModified: new Date(cat.updated_at),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    }));
-  }
-
-  if (id === 'videos') {
-    const videos = await fetchVideos();
-    return videos.map((vid) => ({
-      url: `${baseUrl}/watch/${vid.slug}`,
-      lastModified: new Date(vid.updated_at),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    }));
-  }
-
-  // Fallback for id === 'main' or root
-  return [
+  // 1. Static/Main dynamic routes
+  const mainUrls = [
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'always',
+      changeFrequency: 'always' as const,
       priority: 1.0,
     },
     {
       url: `${baseUrl}/pornstars`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
   ];
+
+  // 2. Dynamic Categories detail routes
+  let categoryUrls: MetadataRoute.Sitemap = [];
+  try {
+    const { categories } = await fetchCategories({ limit: 1000 });
+    categoryUrls = categories.map((cat) => ({
+      url: `${baseUrl}/categories/${cat.slug}`,
+      lastModified: cat.updated_at ? new Date(cat.updated_at) : new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+  } catch (err) {
+    console.error('Error fetching categories for sitemap:', err);
+  }
+
+  // 3. Dynamic Video Watch details routes
+  let videoUrls: MetadataRoute.Sitemap = [];
+  try {
+    const videos = await fetchVideos();
+    videoUrls = videos.map((vid) => ({
+      url: `${baseUrl}/watch/${vid.slug}`,
+      lastModified: vid.updated_at ? new Date(vid.updated_at) : new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    }));
+  } catch (err) {
+    console.error('Error fetching videos for sitemap:', err);
+  }
+
+  return [...mainUrls, ...categoryUrls, ...videoUrls];
 }

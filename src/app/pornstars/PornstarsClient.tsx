@@ -64,6 +64,25 @@ export default function PornstarsClient() {
 
   useEffect(() => {
     async function fetchPornstars() {
+      const cacheKey = `pornstars-page-${currentPage}`;
+      
+      // Try to load from browser sessionStorage for instant loading
+      try {
+        const cachedData = sessionStorage.getItem(cacheKey);
+        if (cachedData) {
+          const data = JSON.parse(cachedData);
+          if (data.pornstars) {
+            setPornstars(data.pornstars);
+            setTotalCount(data.total || data.pornstars.length);
+            setTotalPages(data.totalPages || Math.ceil((data.total || data.pornstars.length) / ITEMS_PER_PAGE) || 1);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (cacheErr) {
+        console.warn('SessionStorage cache read failed:', cacheErr);
+      }
+
       setLoading(true);
       setVisibleBatch(24);
 
@@ -75,6 +94,13 @@ export default function PornstarsClient() {
           setPornstars(data.pornstars);
           setTotalCount(data.total || data.pornstars.length);
           setTotalPages(data.totalPages || Math.ceil((data.total || data.pornstars.length) / ITEMS_PER_PAGE) || 1);
+          
+          // Cache the data in sessionStorage
+          try {
+            sessionStorage.setItem(cacheKey, JSON.stringify(data));
+          } catch (cacheErr) {
+            console.warn('SessionStorage cache write failed:', cacheErr);
+          }
         }
       } catch (err) {
         console.error('Failed to load pornstars page:', err);

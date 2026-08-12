@@ -15,6 +15,8 @@ interface CategoryPageProps {
   searchParams: Promise<{ filter?: string; sort?: string; page?: string }>;
 }
 
+export const revalidate = 600; // Cache compiled category pages for 10 minutes
+
 export async function generateMetadata({ params }: CategoryPageProps) {
   const { slug } = await params;
   const category = await fetchCategoryBySlug(slug);

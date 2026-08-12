@@ -6,6 +6,7 @@ import CategoryDirectory from '@/components/CategoryDirectory';
 import AdBanner from '@/components/AdBanner';
 import Script from 'next/script';
 import InstantMessageAd from '@/components/InstantMessageAd';
+import AgeVerificationModal from '@/components/AgeVerificationModal';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site'),
@@ -94,6 +95,8 @@ export default function RootLayout({
         <Script src="/exoclick-popunder.js" strategy="afterInteractive" />
         {/* Floating Instant Message Chat Ad */}
         <InstantMessageAd />
+        {/* 18+ Age Verification Consent Popup */}
+        <AgeVerificationModal />
       </body>
     </html>
   );
