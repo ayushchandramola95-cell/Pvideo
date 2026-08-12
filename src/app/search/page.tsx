@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { fetchVideos } from '@/lib/data';
 import VideoCard from '@/components/VideoCard';
 import Pagination from '@/components/Pagination';
+import NativeGridAd from '@/components/NativeGridAd';
 import styles from './Search.module.css';
 
 interface SearchContentProps {
@@ -45,6 +46,9 @@ async function SearchResults({ query, page }: SearchContentProps) {
                   <VideoCard key={video.id} video={video} />
                 ))}
               </div>
+              
+              {/* Native ad row below the grid */}
+              <NativeGridAd />
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}

@@ -7,6 +7,7 @@ import DurationFilterDropdown from '@/components/DurationFilterDropdown';
 import SortByDropdown from '@/components/SortByDropdown';
 import Pagination from '@/components/Pagination';
 import AdBanner from '@/components/AdBanner';
+import NativeGridAd from '@/components/NativeGridAd';
 import styles from './CategoryDetail.module.css';
 
 interface CategoryPageProps {
@@ -125,6 +126,9 @@ export default async function CategoryDetailPage({ params, searchParams }: Categ
                 <VideoCard key={video.id} video={video} />
               ))}
             </div>
+
+            {/* Native ad row below the grid */}
+            <NativeGridAd />
 
             {/* Pagination Controls */}
             <Pagination currentPage={page} totalPages={10} baseUrl={`/categories/${slug}`} />
