@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import CategoryDirectory from '@/components/CategoryDirectory';
 import AdBanner from '@/components/AdBanner';
 import Script from 'next/script';
+import InstantMessageAd from '@/components/InstantMessageAd';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site'),
@@ -91,6 +92,8 @@ export default function RootLayout({
         <Footer />
         {/* Global ExoClick Popunder */}
         <Script src="/exoclick-popunder.js" strategy="afterInteractive" />
+        {/* Floating Instant Message Chat Ad */}
+        <InstantMessageAd />
       </body>
     </html>
   );
