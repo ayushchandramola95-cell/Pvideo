@@ -3,7 +3,7 @@ import { fetchCategories } from '@/lib/data';
 import CategoryCard from '@/components/CategoryCard';
 import Pagination from '@/components/Pagination';
 import AdBanner from '@/components/AdBanner';
-import styles from './page.module.css';
+import styles from './Home.module.css';
 
 import { Metadata } from 'next';
 
