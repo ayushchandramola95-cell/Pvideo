@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import Script from 'next/script';
 import styles from './AdBanner.module.css';
 
 // ---------------------------------------------------------------------------
@@ -11,20 +12,11 @@ import styles from './AdBanner.module.css';
 // and will NOT take up any space or show any grey placeholders.
 // ---------------------------------------------------------------------------
 const EXOCLICK_ZONE_IDS: Record<string, string> = {
-  'header-top': '',          // Leaderboard at the top of homepage/category pages
-  'above-directory': '',     // Leaderboard just above the A-Z Category Directory
-  'above-footer': '',        // Leaderboard just above the footer
-  'watch-under-player': '',  // Leaderboard directly below the video player
-  'sidebar-square': '',      // Square banner in the related videos sidebar
-};
-
-// Default dimension mapping for different slots (used to configure the iframe height/width)
-const AD_DIMENSIONS: Record<string, { width: string; height: string }> = {
-  'header-top': { width: '728', height: '90' },
-  'above-directory': { width: '728', height: '90' },
-  'above-footer': { width: '728', height: '90' },
-  'watch-under-player': { width: '728', height: '90' },
-  'sidebar-square': { width: '300', height: '250' },
+  'header-top': '6000940',   // Leaderboard at the top of homepage/category pages
+  'above-directory': '6000942',     // Leaderboard just above the A-Z Category Directory
+  'above-footer': '6000944',        // Leaderboard just above the footer
+  'watch-under-player': '6000952',  // Leaderboard directly below the video player
+  'sidebar-square': '6000954',      // Square banner in the related videos sidebar
 };
 
 interface AdBannerProps {
@@ -33,58 +25,19 @@ interface AdBannerProps {
 
 export default function AdBanner({ size }: AdBannerProps) {
   const zoneId = EXOCLICK_ZONE_IDS[size];
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!zoneId || !containerRef.current) return;
+    if (!zoneId) return;
 
-    // Clear the container to prevent double rendering or script duplication
-    containerRef.current.innerHTML = '';
-
-    const dims = AD_DIMENSIONS[size] || { width: '300', height: '250' };
-
-    // To prevent global variables (like ad_idzone, ad_width, ad_height) from colliding 
-    // when multiple ad zones are rendered on the same page, we load each ad inside an isolated iframe.
-    const iframe = document.createElement('iframe');
-    iframe.style.border = 'none';
-    iframe.style.width = '100%';
-    iframe.style.maxWidth = size === 'sidebar-square' ? '300px' : `${dims.width}px`;
-    iframe.style.height = `${dims.height}px`;
-    iframe.style.overflow = 'hidden';
-    iframe.style.margin = '0 auto';
-    iframe.style.display = 'block';
-    iframe.scrolling = 'no';
-
-    const iframeContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>
-            body { 
-              margin: 0; 
-              padding: 0; 
-              display: flex; 
-              justify-content: center; 
-              align-items: center; 
-              background: transparent; 
-              overflow: hidden;
-            }
-          </style>
-        </head>
-        <body>
-          <script type="text/javascript">
-            var ad_idzone = "${zoneId}",
-                ad_width = "${dims.width}",
-                ad_height = "${dims.height}";
-          </script>
-          <script type="text/javascript" src="https://ads.exoclick.com/ads.js"></script>
-        </body>
-      </html>
-    `;
-
-    iframe.srcdoc = iframeContent;
-    containerRef.current.appendChild(iframe);
-  }, [zoneId, size]);
+    try {
+      // Trigger ExoClick's AdProvider script to populate the ins element
+      // @ts-ignore
+      const AdProvider = window.AdProvider || [];
+      AdProvider.push({ serve: {} });
+    } catch (err) {
+      console.error('Error triggering ExoClick AdProvider:', err);
+    }
+  }, [zoneId]);
 
   // If no zone ID is configured, render absolutely nothing!
   if (!zoneId) {
@@ -94,7 +47,19 @@ export default function AdBanner({ size }: AdBannerProps) {
   return (
     <div className={styles.container}>
       <span className={styles.label}>Advertisement</span>
-      <div ref={containerRef} className={styles.adWrapper} />
+      
+      {/* Load ExoClick's ad-provider script */}
+      <Script 
+        src="https://a.magsrv.com/ad-provider.js" 
+        strategy="afterInteractive" 
+      />
+
+      <div className={styles.adWrapper}>
+        <ins 
+          className="eas6a97888e2" 
+          data-zoneid={zoneId}
+        />
+      </div>
     </div>
   );
 }
