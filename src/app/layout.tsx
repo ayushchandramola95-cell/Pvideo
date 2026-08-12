@@ -3,6 +3,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CategoryDirectory from '@/components/CategoryDirectory';
+import AdBanner from '@/components/AdBanner';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site'),
@@ -77,6 +78,9 @@ export default function RootLayout({
         <Header />
         <main style={{ flex: 1 }}>{children}</main>
         <CategoryDirectory />
+        <div className="container" style={{ margin: '1rem auto' }}>
+          <AdBanner size="top-leaderboard" />
+        </div>
         <Footer />
       </body>
     </html>
