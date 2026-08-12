@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { fetchVideoBySlug, fetchVideos, formatViews, formatDuration, getThumbnailUrl } from '@/lib/data';
 import { getPublicMediaUrl } from '@/lib/r2';
 import VideoCard from '@/components/VideoCard';
+import AdBanner from '@/components/AdBanner';
 import styles from './Watch.module.css';
 
 interface WatchPageProps {
@@ -148,6 +149,9 @@ export default async function WatchPage({ params }: WatchPageProps) {
             </div>
           )}
 
+          {/* Ad Banner under the video player */}
+          <AdBanner size="watch-under-player" />
+
           <div className={styles.details}>
             <h1 className={styles.title}>{video.title}</h1>
 
@@ -217,6 +221,9 @@ export default async function WatchPage({ params }: WatchPageProps) {
 
         {/* Sidebar Shelf */}
         <aside>
+          {/* Sidebar Ad Banner */}
+          <AdBanner size="sidebar-square" />
+
           <h3 className={styles.sidebarTitle}>
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />

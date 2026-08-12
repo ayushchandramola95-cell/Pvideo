@@ -6,6 +6,7 @@ import VrFilterDropdown from '@/components/VrFilterDropdown';
 import DurationFilterDropdown from '@/components/DurationFilterDropdown';
 import SortByDropdown from '@/components/SortByDropdown';
 import Pagination from '@/components/Pagination';
+import AdBanner from '@/components/AdBanner';
 import styles from './CategoryDetail.module.css';
 
 interface CategoryPageProps {
@@ -90,6 +91,9 @@ export default async function CategoryDetailPage({ params, searchParams }: Categ
             <h1 className={styles.title}>{category.name}</h1>
             <span className={styles.countLabel}>({totalCountFormatted})</span>
           </div>
+
+          {/* Top Header Ad Banner */}
+          <AdBanner size="top-leaderboard" />
 
           <div className={styles.controlsRow}>
             {/* Left Filter Buttons & Custom Dropdowns */}

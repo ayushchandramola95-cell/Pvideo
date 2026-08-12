@@ -2,7 +2,8 @@ import React from 'react';
 import { fetchCategories } from '@/lib/data';
 import CategoryCard from '@/components/CategoryCard';
 import Pagination from '@/components/Pagination';
-import styles from './Home.module.css';
+import AdBanner from '@/components/AdBanner';
+import styles from './page.module.css';
 
 import { Metadata } from 'next';
 
@@ -37,6 +38,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <div className={styles.mainWrapper}>
       <div className="container">
+        {/* Top Header Ad Banner */}
+        <AdBanner size="top-leaderboard" />
+
         {/* Real Categories 20x5 Grid Section */}
         <section>
           <div className={styles.sectionHeader}>
