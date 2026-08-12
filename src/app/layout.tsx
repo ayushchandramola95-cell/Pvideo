@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CategoryDirectory from '@/components/CategoryDirectory';
 import AdBanner from '@/components/AdBanner';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site'),
@@ -88,6 +89,8 @@ export default function RootLayout({
           <AdBanner size="above-footer" />
         </div>
         <Footer />
+        {/* Global ExoClick Popunder */}
+        <Script src="/exoclick-popunder.js" strategy="afterInteractive" />
       </body>
     </html>
   );
