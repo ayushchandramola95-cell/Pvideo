@@ -93,7 +93,7 @@ export default async function CategoryDetailPage({ params, searchParams }: Categ
           </div>
 
           {/* Top Header Ad Banner */}
-          <AdBanner size="top-leaderboard" />
+          <AdBanner size="header-top" />
 
           <div className={styles.controlsRow}>
             {/* Left Filter Buttons & Custom Dropdowns */}

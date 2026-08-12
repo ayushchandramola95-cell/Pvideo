@@ -39,7 +39,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <div className={styles.mainWrapper}>
       <div className="container">
         {/* Top Header Ad Banner */}
-        <AdBanner size="top-leaderboard" />
+        <AdBanner size="header-top" />
 
         {/* Real Categories 20x5 Grid Section */}
         <section>

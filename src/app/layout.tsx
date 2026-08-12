@@ -80,9 +80,12 @@ export default function RootLayout({
         />
         <Header />
         <main style={{ flex: 1 }}>{children}</main>
+        <div className="container" style={{ margin: '1rem auto' }}>
+          <AdBanner size="above-directory" />
+        </div>
         <CategoryDirectory />
         <div className="container" style={{ margin: '1rem auto' }}>
-          <AdBanner size="top-leaderboard" />
+          <AdBanner size="above-footer" />
         </div>
         <Footer />
       </body>
