@@ -16,9 +16,9 @@ export async function generateMetadata({ params }: WatchPageProps) {
   const video = await fetchVideoBySlug(slug);
   if (!video) return { title: 'Video Not Found' };
 
-  const title = `${video.title} - Video Details & Release`;
+  const title = `Watch ${video.title} HD Porn Video - Free Sex Clip`;
   const performer = video.performer_name || 'top performers';
-  const description = `Explore ${video.title}, featuring ${performer}. View the release details, duration, categories and related releases on Pornora.`;
+  const description = `Stream ${video.title} HD porn video online for free featuring ${performer}. View full release info, watch related ${video.category?.name || 'sex'} clips, and browse model galleries.`;
   const thumbnailUrl = getThumbnailUrl(video);
 
   return {

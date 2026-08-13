@@ -11,10 +11,10 @@ import AgeVerificationModal from '@/components/AgeVerificationModal';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site'),
   title: {
-    default: 'Pornora - Stream Premium Sex Videos & Performers Directory',
+    default: 'Pornora - Free Porn Videos, HD Sex Clips & Performer Directory',
     template: '%s | Pornora',
   },
-  description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on Pornora.',
+  description: 'Stream and watch free porn videos, HD sex clips, model scenes, and full categories in ultra high quality on Pornora. The ultimate adult tube portal.',
   robots: {
     index: true,
     follow: true,
@@ -30,13 +30,13 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: '/',
     siteName: 'Pornora',
-    title: 'Pornora - Stream Premium Sex Videos & Performers Directory',
-    description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on Pornora.',
+    title: 'Pornora - Free Porn Videos, HD Sex Clips & Performer Directory',
+    description: 'Stream and watch free porn videos, HD sex clips, model scenes, and full categories in ultra high quality on Pornora. The ultimate adult tube portal.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pornora - Stream Premium Sex Videos & Performers Directory',
-    description: 'Stream and watch premium adult videos, models, pornstars scenes, and categories in ultra high quality on Pornora.',
+    title: 'Pornora - Free Porn Videos, HD Sex Clips & Performer Directory',
+    description: 'Stream and watch free porn videos, HD sex clips, model scenes, and full categories in ultra high quality on Pornora. The ultimate adult tube portal.',
   },
 };
 

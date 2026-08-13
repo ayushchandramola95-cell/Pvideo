@@ -2,8 +2,8 @@ import React from 'react';
 import { Metadata } from 'next';
 import PornstarsClient from './PornstarsClient';
 
-const title = 'Top Pornstars & Adult Performers - Releases & Bios';
-const description = 'Browse the ultimate directory of adult performers, model bios, and video releases on Pornora.';
+const title = 'Top Pornstars & Adult Performers Directory - Free Sex Videos';
+const description = 'Browse the ultimate directory of adult performers, pornstars bios, and free sex videos. Search popular models and watch their HD video releases.';
 
 export const revalidate = 600; // Cache compiled pornstars page container for 10 minutes
 

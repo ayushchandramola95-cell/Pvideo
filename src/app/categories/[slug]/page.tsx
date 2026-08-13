@@ -22,9 +22,8 @@ export async function generateMetadata({ params }: CategoryPageProps) {
   const category = await fetchCategoryBySlug(slug);
   if (!category) return { title: 'Category Not Found' };
   
-  const title = `${category.name} Videos - Releases & Collections`;
-  const count = (20666 + (slug.charCodeAt(0) * 850)).toLocaleString();
-  const description = `Browse ${count} ${category.name} releases on Pornora. Explore popular releases, performers, durations, tags and related categories.`;
+  const title = `${category.name} Porn Videos - Free ${category.name} HD Sex Clips`;
+  const description = `Watch free ${category.name} porn videos, HD sex clips, and premium releases on Pornora. Explore popular ${category.name} scenes, top models, and related categories.`;
   
   return {
     title,
