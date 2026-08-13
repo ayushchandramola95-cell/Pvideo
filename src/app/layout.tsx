@@ -97,6 +97,20 @@ export default function RootLayout({
         <InstantMessageAd />
         {/* 18+ Age Verification Consent Popup */}
         <AgeVerificationModal />
+        
+        {/* Global ExoClick Direct Push Notifications */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.pn_idzone = 6001190;
+              window.pn_sleep_seconds = 0;
+              window.pn_is_self_hosted = 1;
+              window.pn_soft_ask = 0;
+              window.pn_filename = "/worker.js";
+            `,
+          }}
+        />
+        <Script src="https://js.wpnsrv.com/pn.php" strategy="afterInteractive" />
       </body>
     </html>
   );
