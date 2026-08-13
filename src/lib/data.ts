@@ -892,3 +892,57 @@ export interface Pornstar {
 }
 
 export const MOCK_PORNSTARS: Pornstar[] = [];
+
+export async function fetchPornstarBySlug(slug: string): Promise<Pornstar | null> {
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase')) {
+      return null;
+    }
+    const { data, error } = await supabase
+      .from('pornstars')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    if (error || !data) return null;
+    return data as Pornstar;
+  } catch (err) {
+    console.error('Error fetching pornstar by slug:', err);
+    return null;
+  }
+}
+
+export async function fetchPornstarVideos(name: string): Promise<Video[]> {
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase')) {
+      return [];
+    }
+    const { data, error } = await supabase
+      .from('videos')
+      .select('*, category:categories(*)')
+      .eq('is_published', true)
+      .eq('performer_name', name)
+      .order('created_at', { ascending: false });
+    if (error || !data) return [];
+    return data as Video[];
+  } catch (err) {
+    console.error('Error fetching pornstar videos:', err);
+    return [];
+  }
+}
+
+export async function fetchAllPornstars(): Promise<Pornstar[]> {
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase')) {
+      return [];
+    }
+    const { data, error } = await supabase
+      .from('pornstars')
+      .select('*')
+      .order('name', { ascending: true });
+    if (error || !data) return [];
+    return data as Pornstar[];
+  } catch (err) {
+    console.error('Error fetching all pornstars:', err);
+    return [];
+  }
+}

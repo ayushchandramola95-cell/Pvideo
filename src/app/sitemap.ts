@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { fetchCategories, fetchVideos } from '@/lib/data';
+import { fetchCategories, fetchVideos, fetchAllPornstars } from '@/lib/data';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pornora.site';
@@ -48,5 +48,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error fetching videos for sitemap:', err);
   }
 
-  return [...mainUrls, ...categoryUrls, ...videoUrls];
+  // 4. Dynamic Pornstar Profile routes
+  let pornstarUrls: MetadataRoute.Sitemap = [];
+  try {
+    const pornstars = await fetchAllPornstars();
+    pornstarUrls = pornstars.map((ps) => ({
+      url: `${baseUrl}/pornstars/${ps.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+  } catch (err) {
+    console.error('Error fetching pornstars for sitemap:', err);
+  }
+
+  return [...mainUrls, ...categoryUrls, ...videoUrls, ...pornstarUrls];
 }

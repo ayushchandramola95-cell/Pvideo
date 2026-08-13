@@ -16,7 +16,7 @@ function PornstarCardItem({ ps, index, visibleBatch }: { ps: Pornstar; index: nu
   const isWaveReady = index < visibleBatch;
 
   return (
-    <Link href={`/search?q=${encodeURIComponent(ps.name)}`} className={styles.card}>
+    <Link href={`/pornstars/${ps.slug}`} className={styles.card}>
       <div className={styles.photoWrapper}>
         {hasPhotoUrl && !imgError && isWaveReady ? (
           <>
